@@ -23,4 +23,4 @@ void print_node(
     Node node);
 
 void print_formula(
-    SubForm f);
+    Formula f);

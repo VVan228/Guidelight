@@ -78,7 +78,7 @@ void print_node(
 }
 
 void print_formula_p(
-    SubForm f,
+    Formula f,
     int depth)
 {
     for (int i = 0; i<depth; i++) {
@@ -97,7 +97,7 @@ void print_formula_p(
 }
 
 void print_formula(
-    SubForm f)
+    Formula f)
 {
     print_formula_p(f, 0);
 }

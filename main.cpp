@@ -4,6 +4,7 @@
 #include "prism_caller.h"
 #include "ts_expander.h"
 #include "parallel.h"
+#include "input.h"
 
 #include <string>
 #include <iostream>
@@ -42,7 +43,7 @@ int main()
     print_ts(nts);
 
     cout<<"SAT\n";
-    Formula f = {"E [ X \"p\" ]"};
+    string f = "E [ X \"p\" ]";
     set<int> sat = get_sat(ts, f);
     print_set(sat);
     cout<<"\n";
@@ -57,5 +58,13 @@ int main()
     cout<<"PAR\n";
     parallel(nts, &init_node, "X", set<string>({"p"}));
     print_ts(nts);
+
+    cout<<"IN\n";
+    Sltl res = parse("example.json");
+    for (auto a: res.agents) {
+        cout<<a.first<<"\n";
+        print_ts(a.second);
+    }
+    print_formula(res.formula);
 }
 

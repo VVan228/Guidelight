@@ -22,7 +22,14 @@ struct Ts {
 };
 
 struct Formula {
-    string text;
+    set<Formula> children;
+    string agent;
+    string formula;
+    string prop_name;
+    friend bool operator<(const Formula& x, const Formula& y) 
+    {
+        return x.formula < y.formula;
+    }
 };
 
 struct Sltl {
@@ -31,15 +38,5 @@ struct Sltl {
     Formula formula;
 };
 
-struct SubForm {
-    set<SubForm> children;
-    string agent;
-    string formula;
-    string prop_name;
-    friend bool operator <(const SubForm& x, const SubForm& y) 
-    {
-        return x.formula < y.formula;
-    }
-};
 
 #endif

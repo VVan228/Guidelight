@@ -93,7 +93,7 @@ string export_ts(
 
 string export_formula(
     Ts& ts,
-    Formula f)
+    string f)
 {
     string res = "";
     auto labels = map<string, string>();
@@ -109,13 +109,13 @@ string export_formula(
     for (auto it: labels) {
         res += format("{};\n", it.second);
     }
-    res += format("filter(printall, {});", f.text);
+    res += format("filter(printall, {});", f);
     return write_to_file("formula", res);
 }
 
 set<int> get_sat(
     Ts& ts,
-    Formula f)
+    string f)
 {
     string tsfile = export_ts(ts);
     string formulafile = export_formula(ts, f);

@@ -10,14 +10,72 @@
 using json = nlohmann::json;
 using namespace std;
 
+string turn_to_prism_prop(
+    string prop)
+{
+    return "\"" + prop + "\"";
+}
+
+int parse_form_rec(
+    string f,
+    Formula& subf,
+    int start,
+    function<string()> prop_namer)
+{
+    int i = start;
+    int after_agent = start;
+
+    string f_w_replaced_prop = f; 
+    int len_diff = 0;
+
+    for (; i < f.length()-1; i++) {
+        if (f.at(i) == '<' && f.at(i+1) == '<') {
+            Formula child = {set<Formula>(), "", "", ""};
+            int newi = parse_form_rec(f, child, i+2, prop_namer);
+            subf.children.insert(child);
+
+            f_w_replaced_prop.replace(
+                i - len_diff,
+                newi - i + 1,
+                turn_to_prism_prop(child.prop_name));
+            len_diff = f.length() - f_w_replaced_prop.length();
+
+            i = newi;
+        }
+        else if (f.at(i) == '>' && f.at(i+1) == '>') {
+            // need to remember that len has changed because of replacement
+            subf.formula = f_w_replaced_prop.substr(after_agent, i - after_agent - len_diff);
+
+            i += 1;
+            return i;
+        }
+        else if(f.at(i) == ':') {
+            subf.agent = f.substr(start, i - start);
+            subf.prop_name = prop_namer();
+            after_agent = i+1;
+        }
+    }
+    // the first subformula, if reached -> no agent (no closing bracket)
+    subf.formula = f_w_replaced_prop;
+    return i;
+}
+
+Formula parse_formula(
+    string f)
+{
+    Formula ff = {set<Formula>(), "", "", ""};
+    int i = 0;
+    auto namer = [&]() -> string{i++;return string(i, '#');};
+    parse_form_rec(f, ff, 0, namer);
+    return ff;
+}
+
 Sltl parse(
     string filename)
 {
     Sltl res = {};
     ifstream f(filename);
     json data = json::parse(f);
-
-    res.formula = {data["formula"]};
 
     res.agents = map<string, Ts>();
     for (json a: data["agents"]) {
@@ -52,82 +110,26 @@ Sltl parse(
         }
     }
 
+    string formula = data["formula"];
+    res.formula = {parse_formula(formula)};
+
     return res;
 }
 
-
-string turn_to_prism_prop(
-    string prop)
-{
-    return "\"" + prop + "\"";
-}
-
-int parse_form_rec(
-    string f,
-    SubForm& subf,
-    int start,
-    function<string()> prop_namer)
-{
-    int i = start;
-    int after_agent = start;
-
-    string f_w_replaced_prop = f; 
-    int len_diff = 0;
-
-    for (; i < f.length()-1; i++) {
-        if (f.at(i) == '<' && f.at(i+1) == '<') {
-            SubForm child = {set<SubForm>(), "", "", ""};
-            int newi = parse_form_rec(f, child, i+2, prop_namer);
-            subf.children.insert(child);
-
-            f_w_replaced_prop.replace(
-                i - len_diff,
-                newi - i + 1,
-                turn_to_prism_prop(child.prop_name));
-            len_diff = f.length() - f_w_replaced_prop.length();
-
-            i = newi;
-        }
-        else if (f.at(i) == '>' && f.at(i+1) == '>') {
-            // need to remember that len has changed because of replacement
-            subf.formula = f_w_replaced_prop.substr(after_agent, i - after_agent - len_diff);
-
-            i += 1;
-            return i;
-        }
-        else if(f.at(i) == ':') {
-            subf.agent = f.substr(start, i - start);
-            subf.prop_name = prop_namer();
-            after_agent = i+1;
-        }
-    }
-    // the first subformula, if reached -> no agent (no closing bracket)
-    subf.formula = f_w_replaced_prop;
-    return i;
-}
-
-void parse_formula(
-    string f)
-{
-    SubForm ff = {set<SubForm>(), "", "", ""};
-    int i = 0;
-    auto namer = [&]() -> string{i++;return string(i, '#');};
-    parse_form_rec(f, ff, 0, namer);
-    print_formula(ff);
-}
-
-int main()
-{
-    parse_formula("xxxx<<1:111111<<2:22<<4:4>>2222>>11<<3:33<<5:5>>33<<6:66>>3>><<7:777>>>>");
-    parse_formula("<<1:11>><<2:22>>");
-    
-    
-    Sltl res = parse("example.json");
-
-    for (auto a: res.agents) {
-        cout<<a.first<<"\n";
-        print_ts(a.second);
-    }
-    cout<<res.formula.text<<"\n";
-    
-}
+//int main()
+//{
+//    Formula f = parse_formula("xxxx<<1:111111<<2:22<<4:4>>2222>>11<<3:33<<5:5>>33<<6:66>>3>><<7:777>>>>");
+//    print_formula(f);
+//    Formula ff = parse_formula("<<1:11>><<2:22>>");
+//    print_formula(ff);
+//    
+//    Sltl res = parse("example.json");
+//
+//    for (auto a: res.agents) {
+//        cout<<a.first<<"\n";
+//        print_ts(a.second);
+//    }
+//    cout<<res.formula.formula<<"\n";
+//    print_formula(res.formula);
+//    
+//}
