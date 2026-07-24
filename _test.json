@@ -3,37 +3,103 @@
         {
             "name": "A",
             "transitions":[
-                [1, 1, 1],
-                [1, 0, 0],
-                [0, 1, 0]
+                [0, 1, 0],
+                [0, 0, 1],
+                [1, 0, 0]
             ],
             "initial_states": [0],
             "properties": [
                 {
+                    "state": 0,
+                    "properties": ["n1"]
+                },
+                {
                     "state": 1,
-                    "properties": ["n1", "n2"]
+                    "properties": ["w1"]
+                },
+                {
+                    "state": 2,
+                    "properties": ["c1"]
                 }
             ],
             "visible_properties": [
-                "p"
+                "n1", "w1", "c1"
+            ]
+        },
+        {
+            "name": "B",
+            "transitions":[
+                [0, 1, 0],
+                [0, 0, 1],
+                [1, 0, 0]
+            ],
+            "initial_states": [0],
+            "properties": [
+                {
+                    "state": 0,
+                    "properties": ["n2"]
+                },
+                {
+                    "state": 1,
+                    "properties": ["w2"]
+                },
+                {
+                    "state": 2,
+                    "properties": ["c2"]
+                }
+            ],
+            "visible_properties": [
+                "n2", "w2", "c2"
             ]
         }
     ],
     "main_system":
     {
-        "name": "_",
         "transitions":[
-            [1, 1, 1],
-            [1, 0, 0],
-            [0, 1, 0]
+            [0, 1, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 1, 0, 0],
+            [1, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0]
         ],
         "initial_states": [0],
         "properties": [
             {
                 "state": 0,
                 "properties": ["n1", "n2"]
+            },
+            {
+                "state": 1,
+                "properties": ["w1", "n2"]
+            },
+            {
+                "state": 2,
+                "properties": ["n1", "w2"]
+            },
+            {
+                "state": 3,
+                "properties": ["c1", "n2"]
+            },
+            {
+                "state": 4,
+                "properties": ["w1", "w2"]
+            },
+            {
+                "state": 5,
+                "properties": ["n1", "c2"]
+            },
+            {
+                "state": 6,
+                "properties": ["c1", "w2"]
+            },
+            {
+                "state": 7,
+                "properties": ["w1", "c2"]
             }
         ]
     },
-    "formula": "E [ X \"p\" ]"
+    "formula": "E [ \"n1\" ]"
 }

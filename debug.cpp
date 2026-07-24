@@ -115,7 +115,7 @@ void print_sltl(
         print_ts(a.second);
         cout<<"visible properties: ";
         print_set(sltl.visible_props[a.first]);
+        cout<<"\n";
     }
-    cout<<"\n";
     print_formula(sltl.formula);
 }
