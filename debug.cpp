@@ -101,3 +101,21 @@ void print_formula(
 {
     print_formula_p(f, 0);
 }
+
+void print_sltl(
+    Sltl sltl)
+{
+    if (sltl.main_ts.init_states.size() > 0) {
+        cout<<"main ts:\n";
+        print_ts(sltl.main_ts);
+    }
+    cout<<"agents ts'\n";
+    for (auto a: sltl.agents) {
+        cout<<a.first<<"\n";
+        print_ts(a.second);
+        cout<<"visible properties: ";
+        print_set(sltl.visible_props[a.first]);
+    }
+    cout<<"\n";
+    print_formula(sltl.formula);
+}

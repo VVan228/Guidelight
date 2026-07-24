@@ -24,3 +24,6 @@ void print_node(
 
 void print_formula(
     Formula f);
+
+void print_sltl(
+    Sltl sltl);
