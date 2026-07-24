@@ -1,0 +1,39 @@
+{
+    "agents": [
+        {
+            "name": "A",
+            "transitions":[
+                [1, 1, 1],
+                [1, 0, 0],
+                [0, 1, 0]
+            ],
+            "initial_states": [0],
+            "properties": [
+                {
+                    "state": 1,
+                    "properties": ["n1", "n2"]
+                }
+            ],
+            "visible_properties": [
+                "p"
+            ]
+        }
+    ],
+    "main_system":
+    {
+        "name": "_",
+        "transitions":[
+            [1, 1, 1],
+            [1, 0, 0],
+            [0, 1, 0]
+        ],
+        "initial_states": [0],
+        "properties": [
+            {
+                "state": 0,
+                "properties": ["n1", "n2"]
+            }
+        ]
+    },
+    "formula": "E [ X \"p\" ]"
+}

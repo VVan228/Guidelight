@@ -70,6 +70,39 @@ Formula parse_formula(
     return ff;
 }
 
+Ts parse_ts(
+    json data)
+{
+    Ts ts = {};
+    int s = data["transitions"].size();
+
+    ts.transit = vector<vector<bool>>(s, vector<bool>(s));
+    int i = 0, j = 0;
+    for (json row: data["transitions"]) {
+        for (json val: row) {
+            ts.transit[i][j] = (val == 1);
+            j++;
+        }
+        j = 0;
+        i++;
+    }
+    
+    ts.init_states = set<int>();
+    for (json state: data["initial_states"]) {
+        ts.init_states.insert((int)state);
+    }
+
+    ts.props = vector<set<string>>(s);
+    for (json prop: data["properties"]) {
+        int state = (int)prop["state"];
+        for (json val: prop["properties"]) {
+            ts.props[state].insert(val);
+        }
+    }
+
+    return ts;
+}
+
 Sltl parse(
     string filename)
 {
@@ -80,44 +113,18 @@ Sltl parse(
     res.agents = map<string, Ts>();
     res.visible_props = map<string, set<string>>();
     for (json a: data["agents"]) {
-        Ts ts = {};
+        Ts ts = parse_ts(a);
 
-        int s = a["transitions"].size();
         string name = a["name"];
-
-        ts.transit = vector<vector<bool>>(s, vector<bool>(s));
-        int i = 0, j = 0;
-        for (json row: a["transitions"]) {
-            for (json val: row) {
-                ts.transit[i][j] = (val == 1);
-                j++;
-            }
-            j = 0;
-            i++;
-        }
-
-        ts.init_states = set<int>();
-        for (json state: a["initial_states"]) {
-            ts.init_states.insert((int)state);
-        }
-
-        ts.props = vector<set<string>>(s);
-        for (json prop: a["properties"]) {
-            ts.props[(int)prop["state"]].insert(prop["name"]);
-        }
-        
-        if (name == "_") {
-            res.main_ts = ts;
-        }
-        else {
-            res.agents[name] = ts;
-        }
+        res.agents[name] = ts;
 
         res.visible_props[name] = set<string>();
         for (json prop: a["visible_properties"]) {
             res.visible_props[name].insert(prop);
         }
     }
+
+    res.main_ts = parse_ts(data["main_system"]);
 
     string formula = data["formula"];
     res.formula = {parse_formula(formula)};

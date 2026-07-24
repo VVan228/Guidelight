@@ -15,7 +15,7 @@
 int main() 
 {
     cout<<"IN\n";
-    Sltl res = parse("example.json");
+    Sltl res = parse("_example.json");
     print_sltl(res);
     
     Ts ts = res.agents["A"];
