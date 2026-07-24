@@ -64,7 +64,10 @@ int main()
     for (auto a: res.agents) {
         cout<<a.first<<"\n";
         print_ts(a.second);
+        cout<<"visible properties: ";
+        print_set(res.visible_props[a.first]);
     }
+    cout<<"\n";
     print_formula(res.formula);
 }
 

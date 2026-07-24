@@ -78,9 +78,13 @@ Sltl parse(
     json data = json::parse(f);
 
     res.agents = map<string, Ts>();
+    res.visible_props = map<string, set<string>>();
     for (json a: data["agents"]) {
         Ts ts = {};
+
         int s = a["transitions"].size();
+        string name = a["name"];
+
         ts.transit = vector<vector<bool>>(s, vector<bool>(s));
         int i = 0, j = 0;
         for (json row: a["transitions"]) {
@@ -102,11 +106,16 @@ Sltl parse(
             ts.props[(int)prop["state"]].insert(prop["name"]);
         }
         
-        if (a["name"] == "_") {
+        if (name == "_") {
             res.main_ts = ts;
         }
         else {
-            res.agents[a["name"]] = ts;
+            res.agents[name] = ts;
+        }
+
+        res.visible_props[name] = set<string>();
+        for (json prop: a["visible_properties"]) {
+            res.visible_props[name].insert(prop);
         }
     }
 
@@ -122,14 +131,4 @@ Sltl parse(
 //    print_formula(f);
 //    Formula ff = parse_formula("<<1:11>><<2:22>>");
 //    print_formula(ff);
-//    
-//    Sltl res = parse("example.json");
-//
-//    for (auto a: res.agents) {
-//        cout<<a.first<<"\n";
-//        print_ts(a.second);
-//    }
-//    cout<<res.formula.formula<<"\n";
-//    print_formula(res.formula);
-//    
 //}

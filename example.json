@@ -13,6 +13,9 @@
                     "state": 1,
                     "name": "p"
                 }
+            ],
+            "visible_properties": [
+                "p"
             ]
         }
     ],

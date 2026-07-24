@@ -34,6 +34,7 @@ struct Formula {
 
 struct Sltl {
     map<string, Ts> agents;
+    map<string, set<string>> visible_props;
     Ts main_ts;
     Formula formula;
 };
