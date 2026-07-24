@@ -12,30 +12,13 @@
 #include <set>
 #include <map>
 
-Ts get_ts()
-{
-    const int s = 3;
-    auto transit = vector<vector<bool>>(s, vector<bool>(s));
-    auto props = vector<set<string>>(s);
-    auto init_states = set<int>({0});
-
-    transit[0][0] = true;
-    transit[0][1] = true;
-    transit[0][2] = true;
-    transit[1][0] = true;
-    transit[2][1] = true;
-    props[1].insert("p");
-
-    return {
-        transit,
-        props,
-        init_states
-    };
-}
-
 int main() 
 {
-    Ts ts = get_ts();
+    cout<<"IN\n";
+    Sltl res = parse("example.json");
+    print_sltl(res);
+    
+    Ts ts = res.agents["A"];
 
     cout<<"EXPANDED TS\n";
     Ts nts = expand(ts, {"a", "b", "c"});
@@ -58,9 +41,5 @@ int main()
     cout<<"PAR\n";
     parallel(nts, &init_node, "X", set<string>({"p"}));
     print_ts(nts);
-
-    cout<<"IN\n";
-    Sltl res = parse("example.json");
-    print_sltl(res);
 }
 
