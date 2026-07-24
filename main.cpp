@@ -12,30 +12,39 @@
 #include <set>
 #include <map>
 
-int main()
+Ts apply(
+    Sltl& sltl,
+    Ts ts,
+    Formula& f)
 {
-    Sltl sltl = parse("_test.json");
-    print_formula(sltl.formula);
-    cout<<"\n";
+    if (f.children.size() == 0) {
+        return ts;
+    }
+    for (Formula sub_f: f.children) {
+        cout<<"working on: "<<sub_f.agent;
+        Ts a_ts = apply(sltl, sltl.agents[sub_f.agent], sub_f);
 
-    //auto saved = map<Formula*, Ts>();
-    Ts main_ts = sltl.main_ts;
-
-    Formula main_sys_f = sltl.formula;
-    for (Formula sub_f: main_sys_f.children) {
-        Ts ts = sltl.agents[sub_f.agent];
-
-        //cout<<sub_f.formula<<"\n";
-        auto sat = get_sat(ts, sub_f.formula);
-        //print_set(sat);
-        //cout<<"\n";
+        auto sat = get_sat(a_ts, sub_f.formula);
 
         auto dfa_nodes = map<set<int>, Node>();
-        Node init_node = build_dfa(ts, sat, dfa_nodes);
+        Node init_node = build_dfa(a_ts, sat, dfa_nodes);
 
-        parallel(main_ts, &init_node, sub_f.prop_name, sltl.visible_props[sub_f.agent]);
+        parallel(ts, &init_node, sub_f.prop_name, sltl.visible_props[sub_f.agent]);
+        cout<<" done\n";
     }
-    print_ts(main_ts);
+    return ts;
+}
+
+int main()
+{
+    cout<<"start\n";
+    Sltl sltl = parse("_test.json");
+    Ts res = apply(sltl, sltl.main_ts, sltl.formula);
+    print_ts(res);
+    cout<<"sat for "<<sltl.formula.formula<<":\n";
+    auto sat = get_sat(res, sltl.formula.formula);
+    print_set(sat);
+    cout<<"\n";
 }
 
 //int main() 
