@@ -37,9 +37,14 @@ set<int> get_results(
     string out)
 {
     auto sat = set<int>();
+    
+    // check for errors
+    if (out.find("Error") != std::string::npos) {
+        cout<<out;
+        return set<int>();
+    }
 
     regex r("^(\\d:\\(\\d\\))$", regex::multiline);
-    smatch m;
 
     auto sbegin = sregex_iterator(out.begin(), out.end(), r);
     auto send = sregex_iterator();
@@ -109,7 +114,7 @@ string export_formula(
     for (auto it: labels) {
         res += format("{};\n", it.second);
     }
-    res += format("filter(printall, {});", f);
+    res += format("filter(printall, E [ {} ]);", f);
     return write_to_file("formula", res);
 }
 

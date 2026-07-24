@@ -15,7 +15,27 @@
 int main()
 {
     Sltl sltl = parse("_test.json");
-    print_sltl(sltl);
+    print_formula(sltl.formula);
+    cout<<"\n";
+
+    //auto saved = map<Formula*, Ts>();
+    Ts main_ts = sltl.main_ts;
+
+    Formula main_sys_f = sltl.formula;
+    for (Formula sub_f: main_sys_f.children) {
+        Ts ts = sltl.agents[sub_f.agent];
+
+        //cout<<sub_f.formula<<"\n";
+        auto sat = get_sat(ts, sub_f.formula);
+        //print_set(sat);
+        //cout<<"\n";
+
+        auto dfa_nodes = map<set<int>, Node>();
+        Node init_node = build_dfa(ts.transit, ts.init_states, sat, ts.props, dfa_nodes);
+
+        parallel(main_ts, &init_node, sub_f.prop_name, sltl.visible_props[sub_f.agent]);
+    }
+    print_ts(main_ts);
 }
 
 //int main() 

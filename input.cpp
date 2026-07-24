@@ -65,7 +65,8 @@ Formula parse_formula(
 {
     Formula ff = {set<Formula>(), "", "", ""};
     int i = 0;
-    auto namer = [&]() -> string{i++;return string(i, '#');};
+    // TODO: how to get?
+    auto namer = [&]() -> string{i++;return string(i, 'x');};
     parse_form_rec(f, ff, 0, namer);
     return ff;
 }
