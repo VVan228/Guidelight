@@ -34,5 +34,5 @@
             }
         ]
     },
-    "formula": "E [ X \"p\" ]"
+    "formula": "X \"p\""
 }

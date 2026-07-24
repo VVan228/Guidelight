@@ -31,7 +31,7 @@ int main()
         //cout<<"\n";
 
         auto dfa_nodes = map<set<int>, Node>();
-        Node init_node = build_dfa(ts.transit, ts.init_states, sat, ts.props, dfa_nodes);
+        Node init_node = build_dfa(ts, sat, dfa_nodes);
 
         parallel(main_ts, &init_node, sub_f.prop_name, sltl.visible_props[sub_f.agent]);
     }
@@ -59,7 +59,7 @@ int main()
 //
 //    cout<<"DFA\n";
 //    auto all_nodes = map<set<int>, Node>();
-//    Node init_node = build_dfa(ts.transit, ts.init_states, sat, ts.props, all_nodes);
+//    Node init_node = build_dfa(ts, sat, all_nodes);
 //    for (auto iter: all_nodes) {
 //        print_node(iter.second);
 //    }

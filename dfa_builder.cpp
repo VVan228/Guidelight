@@ -92,20 +92,18 @@ void build(
 }
 
 Node build_dfa(
-    vector<vector<bool>> transit,
-    set<int> init_states,
+    Ts& ts,
     set<int> final_states,
-    vector<set<string>> props,
     map<set<int>, Node>& nodes)
 {
     Node init_node = {
         set<int>(),
-        group_states(init_states, props, nodes),
+        group_states(ts.init_states, ts.props, nodes),
         false
     };
     nodes[set<int>()] = init_node;
 
-    build(&init_node, transit, final_states, props, nodes);
+    build(&init_node, ts.transit, final_states, ts.props, nodes);
 
     return init_node;
 }
