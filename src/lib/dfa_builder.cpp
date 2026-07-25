@@ -7,6 +7,33 @@
 
 using namespace std;
 
+void filter_ts(
+    Ts& ts,
+    set<string> visible_props)
+{
+    for (int i = 0; i<ts.props.size(); i++) {
+        auto pb = ts.props[i].begin();
+        auto pe = ts.props[i].end();
+        auto vb = visible_props.begin();
+        auto ve = visible_props.end();
+        while (pb != pe) {
+            if (vb == ve) {
+                pb = ts.props[i].erase(pb);
+            }
+            else if (*pb < *vb) {
+                pb = ts.props[i].erase(pb);
+            }
+            else if (*vb < *pb) {
+                vb++;
+            }
+            else {
+                vb++;
+                pb++;
+            }
+        }
+    }
+}
+
 void set_is_final(
     Node* node,
     set<int> final_states)
@@ -38,8 +65,6 @@ map<set<string>, Node*> group_states(
 {
     auto transitions = map<set<string>, set<int>>();
     for (int state: states) {
-        // TODO: intersection with D goes here
-        // upd: or we can just filter the ts?
         transitions[props[state]].insert(state);
     }
     auto res = map<set<string>, Node*>();
@@ -92,10 +117,14 @@ void build(
 }
 
 Node build_dfa(
-    Ts& ts,
+    Ts ts,
     set<int> final_states,
-    map<set<int>, Node>& nodes)
+    map<set<int>, Node>& nodes,
+    set<string> visible_props)
 {
+    // ts is copied -> can change
+    filter_ts(ts, visible_props);
+
     Node init_node = {
         set<int>(),
         group_states(ts.init_states, ts.props, nodes),

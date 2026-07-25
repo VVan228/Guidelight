@@ -27,7 +27,7 @@ Ts apply(
         auto sat = get_sat(a_ts, sub_f.formula);
 
         auto dfa_nodes = map<set<int>, Node>();
-        Node init_node = build_dfa(a_ts, sat, dfa_nodes);
+        Node init_node = build_dfa(a_ts, sat, dfa_nodes, sltl.visible_props[sub_f.agent]);
 
         parallel(ts, &init_node, sub_f.prop_name, sltl.visible_props[sub_f.agent]);
         cout<<" done\n";
@@ -68,13 +68,13 @@ int main()
 //
 //    cout<<"DFA\n";
 //    auto all_nodes = map<set<int>, Node>();
-//    Node init_node = build_dfa(ts, sat, all_nodes);
+//    Node init_node = build_dfa(nts, sat, all_nodes, set<string>({"p", "a", "b"}));
 //    for (auto iter: all_nodes) {
 //        print_node(iter.second);
 //    }
 //
 //    cout<<"PAR\n";
-//    parallel(nts, &init_node, "X", set<string>({"p"}));
+//    parallel(nts, &init_node, "X", set<string>({"p", "a"}));
 //    print_ts(nts);
 //}
 

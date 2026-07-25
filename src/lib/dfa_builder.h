@@ -7,6 +7,7 @@
 using namespace std;
 
 Node build_dfa(
-    Ts& ts,
+    Ts ts,
     set<int> final_states,
-    map<set<int>, Node>& nodes);
+    map<set<int>, Node>& nodes,
+    set<string> visible_props);
