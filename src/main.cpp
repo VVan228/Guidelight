@@ -13,20 +13,34 @@
 #include <map>
 #include <algorithm>
 
+enum Semantics { pobs, pub, step };
+
 Ts apply(
     Sltl& sltl,
     Ts ts,
-    Formula& f)
+    Formula& f,
+    Semantics sem)
 {
     if (f.children.size() == 0) {
         return ts;
     }
     for (Formula sub_f: f.children) {
         cout<<"working on: "<<sub_f.agent<<"\n";
-        Ts a_ts = apply(sltl, sltl.agents[sub_f.agent], sub_f);
+        Ts a_ts = apply(sltl, sltl.agents[sub_f.agent], sub_f, sem);
 
-        // TODO: different semantics
-        set<string> observable = sltl.visible_props[sub_f.agent];
+        // TODO: incr, decr
+        set<string> observable;
+        switch (sem) {
+            case pobs:
+                observable = sltl.visible_props[sub_f.agent];
+                break;
+            case pub:
+                observable = sltl.all_props;
+                break;
+            case step:
+                observalbe = set<string>();
+                break;
+        }
 
         set<string> extra = set<string>();
         set_difference(observable.begin(), observable.end(),
@@ -56,7 +70,7 @@ int main()
     cout<<"start\n";
     Sltl sltl = parse("resources/test.json");
     print_sltl(sltl);
-    Ts res = apply(sltl, sltl.main_ts, sltl.formula);
+    Ts res = apply(sltl, sltl.main_ts, sltl.formula, Semantics::pobs);
     print_ts(res);
     cout<<"sat for "<<sltl.formula.formula<<":\n";
     auto sat = get_sat(res, sltl.formula.formula);
