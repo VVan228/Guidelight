@@ -109,7 +109,7 @@ void print_sltl(
         cout<<"main ts:\n";
         print_ts(sltl.main_ts);
     }
-    cout<<"agents ts'\n";
+    cout<<"\nagents ts'\n";
     for (auto a: sltl.agents) {
         cout<<a.first<<"\n";
         print_ts(a.second);
@@ -117,5 +117,8 @@ void print_sltl(
         print_set(sltl.visible_props[a.first]);
         cout<<"\n";
     }
+    cout<<"\nall props: ";
+    print_set(sltl.all_props);
+    cout<<"\n\n";
     print_formula(sltl.formula);
 }

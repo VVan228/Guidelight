@@ -37,6 +37,7 @@ struct Sltl {
     map<string, set<string>> visible_props;
     Ts main_ts;
     Formula formula;
+    set<string> all_props;
 };
 
 

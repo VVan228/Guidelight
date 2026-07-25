@@ -55,8 +55,9 @@ int main()
 {
     cout<<"start\n";
     Sltl sltl = parse("resources/test.json");
+    print_sltl(sltl);
     Ts res = apply(sltl, sltl.main_ts, sltl.formula);
-    //print_ts(res);
+    print_ts(res);
     cout<<"sat for "<<sltl.formula.formula<<":\n";
     auto sat = get_sat(res, sltl.formula.formula);
     print_set(sat);

@@ -6,6 +6,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <format>
 
 using json = nlohmann::json;
 using namespace std;
@@ -20,7 +21,7 @@ int parse_form_rec(
     string f,
     Formula& subf,
     int start,
-    function<string()> prop_namer)
+    function<string(string)> prop_namer)
 {
     int i = start;
     int after_agent = start;
@@ -51,7 +52,7 @@ int parse_form_rec(
         }
         else if(f.at(i) == ':') {
             subf.agent = f.substr(start, i - start);
-            subf.prop_name = prop_namer();
+            subf.prop_name = prop_namer(subf.agent);
             after_agent = i+1;
         }
     }
@@ -61,12 +62,19 @@ int parse_form_rec(
 }
 
 Formula parse_formula(
-    string f)
+    string f,
+    set<string>& all_props)
 {
     Formula ff = {set<Formula>(), "", "", ""};
     int i = 0;
-    // TODO: how to get?
-    auto namer = [&]() -> string{i++;return string(i, 'x');};
+    auto namer = [&i, &all_props](string agent) -> string{
+        string name = format("{}{}", agent, i);
+        while(all_props.contains(name)) {
+            i++;
+            name = format("{}{}", agent, i);
+        }
+        return name;
+    };
     parse_form_rec(f, ff, 0, namer);
     return ff;
 }
@@ -111,6 +119,9 @@ Sltl parse(
     ifstream f(filename);
     json data = json::parse(f);
 
+    // 
+    set<string> all_props = set<string>();
+
     res.agents = map<string, Ts>();
     res.visible_props = map<string, set<string>>();
     for (json a: data["agents"]) {
@@ -122,13 +133,19 @@ Sltl parse(
         res.visible_props[name] = set<string>();
         for (json prop: a["visible_properties"]) {
             res.visible_props[name].insert(prop);
+            all_props.insert(prop);
         }
     }
 
     res.main_ts = parse_ts(data["main_system"]);
+    for (auto p: res.main_ts.props) {
+        all_props.insert(p.begin(), p.end());
+    }
+
+    res.all_props = all_props;
 
     string formula = data["formula"];
-    res.formula = {parse_formula(formula)};
+    res.formula = {parse_formula(formula, all_props)};
 
     return res;
 }
