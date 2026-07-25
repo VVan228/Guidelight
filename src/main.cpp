@@ -38,7 +38,7 @@ Ts apply(
 int main()
 {
     cout<<"start\n";
-    Sltl sltl = parse("_test.json");
+    Sltl sltl = parse("resources/test.json");
     Ts res = apply(sltl, sltl.main_ts, sltl.formula);
     print_ts(res);
     cout<<"sat for "<<sltl.formula.formula<<":\n";
@@ -50,7 +50,7 @@ int main()
 //int main() 
 //{
 //    cout<<"IN\n";
-//    Sltl res = parse("_example.json");
+//    Sltl res = parse("resources/example.json");
 //    print_sltl(res);
 //    
 //    Ts ts = res.agents["A"];
