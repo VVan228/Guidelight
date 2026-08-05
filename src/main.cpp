@@ -13,34 +13,71 @@
 #include <map>
 #include <algorithm>
 
-enum Semantics { pobs, pub, step };
+set<string> get_q_incr(
+    set<string> q_in,
+    set<string> visible_props)
+{
+    set<string> q_out = set<string>();
+    set_union(
+        q_in.begin(), q_in.end(),
+        visible_props.begin(), visible_props.end(),
+        inserter(q_out, q_out.end())
+    );
+    return q_out;
+}
 
-Ts apply(
+set<string> get_q_decr(
+    set<string> q_in,
+    set<string> visible_props)
+{
+    set<string> q_out = set<string>();
+    set_intersection(
+        q_in.begin(), q_in.end(),
+        visible_props.begin(), visible_props.end(),
+        inserter(q_out, q_out.end())
+    );
+    return q_out;
+}
+
+Ts apply_i(
     Sltl& sltl,
     Ts ts,
     Formula& f,
-    Semantics sem)
+    Semantics sem,
+    set<string> q_in)
 {
     if (f.children.size() == 0) {
         return ts;
     }
     for (Formula sub_f: f.children) {
-        cout<<"working on: "<<sub_f.agent<<"\n";
-        Ts a_ts = apply(sltl, sltl.agents[sub_f.agent], sub_f, sem);
 
-        // TODO: incr, decr
         set<string> observable;
+        set<string> q_out;
         switch (sem) {
             case pobs:
                 observable = sltl.visible_props[sub_f.agent];
+                q_out = q_in;
                 break;
             case pub:
                 observable = sltl.all_props;
+                q_out = q_in;
                 break;
             case step:
                 observable = set<string>();
+                q_out = q_in;
+                break;
+            case incr:
+                observable = get_q_incr(q_in, sltl.visible_props[sub_f.agent]);
+                q_out = observable;
+                break;
+            case decr:
+                observable = get_q_decr(q_in, sltl.visible_props[sub_f.agent]);
+                q_out = observable;
                 break;
         }
+
+        cout<<"working on: "<<sub_f.agent<<"\n";
+        Ts a_ts = apply_i(sltl, sltl.agents[sub_f.agent], sub_f, sem, q_out);
 
         set<string> extra = set<string>();
         set_difference(observable.begin(), observable.end(),
@@ -65,6 +102,18 @@ Ts apply(
     return ts;
 }
 
+Ts apply(
+    Sltl& sltl,
+    Ts ts,
+    Formula& f,
+    Semantics sem)
+{
+    if (sem == Semantics::decr) {
+        return apply_i(sltl, ts, f, sem, sltl.all_props);
+    }
+    return apply_i(sltl, ts, f, sem, set<string>());
+}
+
 int main()
 {
     cout<<"start\n";
@@ -76,7 +125,16 @@ int main()
     auto sat = get_sat(res, sltl.formula.formula);
     print_set(sat);
     cout<<"\n";
+    
+
 }
+
+//int main()
+//{
+//    Sltl sltl = parse("resources/q_test.json");
+//    print_sltl(sltl);
+//    Ts res = apply(sltl, sltl.main_ts, sltl.formula, Semantics::decr);
+//}
 
 //int main() 
 //{

@@ -1,0 +1,92 @@
+{
+    "agents": [
+        {
+            "name": "A",
+            "transitions":[
+                [1, 1, 1],
+                [1, 0, 0],
+                [0, 1, 0]
+            ],
+            "initial_states": [0],
+            "properties": [
+                {
+                    "state": 1,
+                    "properties": ["a", "b", "c"]
+                }
+            ],
+            "visible_properties": [
+                "a", "b", "c"
+            ]
+        },
+        {
+            "name": "B",
+            "transitions":[
+                [1, 1, 1],
+                [1, 0, 0],
+                [0, 1, 0]
+            ],
+            "initial_states": [0],
+            "properties": [
+                {
+                    "state": 1,
+                    "properties": ["b", "d"]
+                }
+            ],
+            "visible_properties": [
+                "b", "d"
+            ]
+        },
+        {
+            "name": "C",
+            "transitions":[
+                [1, 1, 1],
+                [1, 0, 0],
+                [0, 1, 0]
+            ],
+            "initial_states": [0],
+            "properties": [
+                {
+                    "state": 1,
+                    "properties": ["c", "d"]
+                }
+            ],
+            "visible_properties": [
+                "c", "d"
+            ]
+        },
+        {
+            "name": "D",
+            "transitions":[
+                [1, 1, 1],
+                [1, 0, 0],
+                [0, 1, 0]
+            ],
+            "initial_states": [0],
+            "properties": [
+                {
+                    "state": 1,
+                    "properties": ["d"]
+                }
+            ],
+            "visible_properties": [
+                "d"
+            ]
+        }
+    ],
+    "main_system": 
+    {
+        "transitions":[
+            [1, 1, 1],
+            [1, 0, 0],
+            [0, 1, 0]
+        ],
+        "initial_states": [0],
+        "properties": [
+            {
+                "state": 1,
+                "properties": ["m", "a", "b", "c", "d"]
+            }
+        ]
+    },
+    "formula": "<<A:a <<B:b<<D:d>>>> <<C:c<<D:d>>>> >>"
+}

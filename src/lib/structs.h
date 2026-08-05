@@ -8,6 +8,8 @@ using namespace std;
 #ifndef STRUCTS_H_
 #define STRUCTS_H_
 
+enum Semantics { pobs, pub, step, incr, decr };
+
 struct Node {
     set<int> states;
     map<set<string>, Node*> transitions;
