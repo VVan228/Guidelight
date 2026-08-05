@@ -5,6 +5,7 @@
 #include "ts_expander.h"
 #include "parallel.h"
 #include "input.h"
+#include "testing.h"
 
 #include <string>
 #include <iostream>
@@ -116,18 +117,24 @@ Ts apply(
 
 int main()
 {
-    cout<<"start\n";
-    Sltl sltl = parse("resources/test.json");
-    print_sltl(sltl);
-    Ts res = apply(sltl, sltl.main_ts, sltl.formula, Semantics::pobs);
-    print_ts(res);
-    cout<<"sat for "<<sltl.formula.formula<<":\n";
-    auto sat = get_sat(res, sltl.formula.formula);
-    print_set(sat);
-    cout<<"\n";
-    
-
+    Ts ts = generate_ts(10, 10);
+    print_ts(ts);
 }
+
+//int main()
+//{
+//    cout<<"start\n";
+//    Sltl sltl = parse("resources/test.json");
+//    print_sltl(sltl);
+//    Ts res = apply(sltl, sltl.main_ts, sltl.formula, Semantics::pobs);
+//    print_ts(res);
+//    cout<<"sat for "<<sltl.formula.formula<<":\n";
+//    auto sat = get_sat(res, sltl.formula.formula);
+//    print_set(sat);
+//    cout<<"\n";
+//    
+//
+//}
 
 //int main()
 //{
