@@ -117,8 +117,8 @@ Ts apply(
 
 int main()
 {
-    Ts ts = generate_ts(10, 10);
-    print_ts(ts);
+    Sltl sltl = generate_sltl(3, 10, 10);
+    print_sltl(sltl);
 }
 
 //int main()

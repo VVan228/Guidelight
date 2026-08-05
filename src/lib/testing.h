@@ -1,5 +1,6 @@
 #include "structs.h"
 
-Ts generate_ts(
-    int s,
-    int p);
+Sltl generate_sltl(
+    int agents,
+    int size,
+    int num_props);
