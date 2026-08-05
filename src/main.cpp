@@ -38,7 +38,7 @@ Ts apply(
                 observable = sltl.all_props;
                 break;
             case step:
-                observalbe = set<string>();
+                observable = set<string>();
                 break;
         }
 
