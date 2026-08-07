@@ -110,18 +110,26 @@ string generate_formula(
 {
     string res = "";
     for(int i = 0; i<path.size(); i++){
+        string prop;
+        bool is_prop;
         if (ts.props[path[i]].size() == 0) {
-            continue;
+            prop = "true";
+            is_prop = false;
+        } else {
+            auto iter = ts.props[path[i]].begin();
+            int n = rand()%ts.props[path[i]].size();
+            for (int j = 0; j<n; j++) {
+                iter++;
+            }
+            prop = *iter;
+            is_prop = true;
         }
-        //cout<<ts.props[path[i]].size()<<" ";
-        auto iter = ts.props[path[i]].begin();
-        int n = rand()%ts.props[path[i]].size();
-        for (int j = 0; j<n; j++) {
-            iter++;
+        string sub_res;
+        if (is_prop) {
+            sub_res = format("\"{}\"", prop);
+        } else {
+            sub_res = prop;
         }
-        string prop = *iter;
-
-        string sub_res = format("\"{}\"", prop);
         for (int j = 0; j<i; j++) {
             sub_res = format("(X {})", sub_res);
         }
@@ -151,19 +159,24 @@ set<string> get_props(
 vector<int> find_path(
     Ts ts)
 {
-    vector<int> path = vector<int>();
-    set<int> visited = set<int>();
+    vector<int> path = vector<int>({0});
+    set<int> visited = set<int>({0});
     for (int i = 0; i<ts.transit.size(); i++) {
         if (visited.contains(i)) {
             continue;
         }
-        visited.insert(i);
-        path.push_back(i);
+        bool skip = true;
         for (int j = 0; j<ts.transit.size(); j++) {
             if (ts.transit[i][j] && !visited.contains(j)) {
+                path.push_back(j);
+                visited.insert(j);
                 i = j;
+                skip = false;
                 break;
             }
+        }
+        if (skip) {
+            break;
         }
     }
     return path;

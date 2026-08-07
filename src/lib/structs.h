@@ -30,7 +30,9 @@ struct Formula {
     string prop_name;
     friend bool operator<(const Formula& x, const Formula& y) 
     {
-        return x.formula < y.formula;
+        return x.formula == y.formula 
+            ? x.prop_name < y.prop_name
+            : x.formula < y.formula;
     }
 };
 

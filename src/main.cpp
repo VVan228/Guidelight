@@ -115,18 +115,17 @@ Ts apply(
 
 int main()
 {
-    Sltl sltl = generate_sltl(3, 10, 10);
-    Ts res = apply(sltl, Semantics::pobs);
-    print_ts(res);
-    print_formula(sltl.formula);
-    auto sat = get_sat(res, sltl.formula.formula);
-    //print_set(sat);
-    if (sat.contains(0)) {
-        cout<<"success";
-    } else {
-        cout<<"failure";
+    for (int i = 0; i<10; i++) {
+        Sltl sltl = generate_sltl(3, 5, 5);
+        Ts res = apply(sltl, Semantics::pobs);
+        auto sat = get_sat(res, sltl.formula.formula);
+        if (!sat.contains(0)) {
+            print_sltl(sltl);
+            print_ts(res);
+            break;
+        }
+        cout<<"one done;\n";
     }
-    cout<<"\n";
 }
 
 //int main()
