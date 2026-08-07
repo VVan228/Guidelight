@@ -5,4 +5,4 @@ using namespace std;
 
 set<int> get_sat(
     Ts& ts,
-    string f);
+    Formula& f);

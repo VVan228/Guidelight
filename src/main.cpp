@@ -92,7 +92,7 @@ Ts apply_i(
         }
 
         cout<<"getting sat...";
-        auto sat = get_sat(a_ts, sub_f.formula);
+        auto sat = get_sat(a_ts, sub_f);
         cout<<" done\n";
 
         auto dfa_nodes = map<set<int>, Node>();
@@ -113,35 +113,41 @@ Ts apply(
     return apply_i(sltl, sltl.main_ts, sltl.formula, sem, set<string>());
 }
 
-int main()
-{
-    for (int i = 0; i<10; i++) {
-        Sltl sltl = generate_sltl(3, 5, 5);
-        Ts res = apply(sltl, Semantics::pobs);
-        auto sat = get_sat(res, sltl.formula.formula);
-        if (!sat.contains(0)) {
-            print_sltl(sltl);
-            print_ts(res);
-            break;
-        }
-        cout<<"one done;\n";
-    }
-}
-
 //int main()
 //{
-//    cout<<"start\n";
-//    Sltl sltl = parse("resources/test.json");
-//    print_sltl(sltl);
-//    Ts res = apply(sltl, sltl.main_ts, sltl.formula, Semantics::pobs);
-//    print_ts(res);
-//    cout<<"sat for "<<sltl.formula.formula<<":\n";
-//    auto sat = get_sat(res, sltl.formula.formula);
-//    print_set(sat);
-//    cout<<"\n";
-//    
-//
+//    for (int i = 0; i<10; i++) {
+//        Sltl sltl = generate_sltl(3, 5, 5);
+//        Ts res = apply(sltl, Semantics::pobs);
+//        auto sat = get_sat(res, sltl.formula.formula);
+//        if (!sat.contains(0)) {
+//            print_sltl(sltl);
+//            print_ts(res);
+//            break;
+//        }
+//        cout<<"one done;\n";
+//    }
 //}
+
+int main()
+{
+    cout<<"start\n";
+    Sltl sltl = parse("resources/test.json");
+    print_sltl(sltl);
+    Ts res = apply(sltl, Semantics::pobs);
+    for (auto i = res.props[0].begin(); i!=res.props[0].end(); i++) {
+        if (*i == "A0") {
+            res.props[0].erase(i);
+            break;
+        }
+    }
+    print_ts(res);
+    cout<<"sat for "<<sltl.formula.formula<<":\n";
+    auto sat = get_sat(res, sltl.formula);
+    print_set(sat);
+    cout<<"\n";
+    
+
+}
 
 //int main()
 //{

@@ -98,14 +98,16 @@ string export_ts(
 
 string export_formula(
     Ts& ts,
-    string f)
+    Formula& f)
 {
+    set<string> all_p_incl_subfs = set<string>();
     string res = "";
     auto labels = map<string, string>();
     for (int i = 0; i<ts.props.size(); i++) {
         for (string p: ts.props[i]) {
             if (!labels.contains(p)) {
                 labels[p] = format("label \"{}\" = s={}", p, i);
+                all_p_incl_subfs.insert(p);
             } else {
                 labels[p] = labels[p] + format(" | s={}", i);
             }
@@ -114,13 +116,20 @@ string export_formula(
     for (auto it: labels) {
         res += format("{};\n", it.second);
     }
-    res += format("filter(printall, E [ {} ]);", f);
+    // if subformula prop was not mentioned, its always false
+    for (auto child: f.children) {
+        if (all_p_incl_subfs.contains(child.prop_name)) {
+            continue;
+        }
+        res += format("label \"{}\" = false;\n", child.prop_name);
+    }
+    res += format("filter(printall, E [ {} ]);", f.formula);
     return write_to_file("formula", res);
 }
 
 set<int> get_sat(
     Ts& ts,
-    string f)
+    Formula& f)
 {
     string tsfile = export_ts(ts);
     string formulafile = export_formula(ts, f);
