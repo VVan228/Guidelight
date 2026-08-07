@@ -1,0 +1,78 @@
+{
+    "agents": [
+        {
+            "name": "A",
+            "transitions":[
+                [0, 1, 0, 1, 0],
+                [0, 0, 1, 0, 0],
+                [0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1]
+            ],
+            "initial_states": [0],
+            "properties": [
+                {
+                    "state": 1,
+                    "properties": ["p"]
+                },
+                {
+                    "state": 2,
+                    "properties": ["r"]
+                }
+            ],
+            "visible_properties": [
+                "p", "r"
+            ]
+        },
+        {
+            "name": "B",
+            "transitions":[
+                [0, 1, 0, 1, 0],
+                [0, 0, 1, 0, 0],
+                [0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1]
+            ],
+            "initial_states": [0],
+            "properties": [
+                {
+                    "state": 1,
+                    "properties": ["q"]
+                },
+                {
+                    "state": 4,
+                    "properties": ["r"]
+                }
+            ],
+            "visible_properties": [
+                "q", "r"
+            ]
+        }
+    ],
+    "main_system": 
+    {
+        "transitions":[
+            [0, 1, 0, 1, 0],
+            [0, 0, 1, 0, 0],
+            [0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 1]
+        ],
+        "initial_states": [0],
+        "properties": [
+            {
+                "state": 1,
+                "properties": ["p", "q"]
+            },
+            {
+                "state": 2,
+                "properties": ["r"]
+            },
+            {
+                "state": 4,
+                "properties": ["r"]
+            }
+        ]
+    },
+    "formula": "<<A: X <<B:\"r\">> >>"
+}

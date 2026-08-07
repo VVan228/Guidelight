@@ -53,7 +53,6 @@ void parallel_rec(
 {
     if (cur_node->final) {
         ts.props[cur_s].insert(newprop);
-        //cout<<"fin\n";
     }
     for (int state = 0; state<ts.transit.size(); state++) {
         if (!ts.transit[cur_s][state])
@@ -65,8 +64,14 @@ void parallel_rec(
             {
                 visited.insert({state, transition.second});
                 //cout<<"match "<<state<<"=(";
+                //print_set(cur_node->states);
+                //cout<<")->(";
                 //print_set(transition.second->states);
-                //cout<<")\n";
+                //cout<<") props: ";
+                //print_set(ts.props[state]);
+                //cout<<"~ ";
+                //print_set(transition.first);
+                //cout<<"\n";
                 parallel_rec(ts, transition.second, state, newprop, visited, visible_props);
             }
         }

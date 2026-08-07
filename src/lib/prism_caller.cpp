@@ -44,7 +44,7 @@ set<int> get_results(
         return set<int>();
     }
 
-    regex r("^(\\d:\\(\\d\\))$", regex::multiline);
+    regex r("^(\\d+:\\(\\d+\\))$", regex::multiline);
 
     auto sbegin = sregex_iterator(out.begin(), out.end(), r);
     auto send = sregex_iterator();

@@ -45,72 +45,82 @@ Ts apply_i(
     Ts ts,
     Formula& f,
     Semantics sem,
+    set<string> cur_obs,
     set<string> q_in)
 {
     if (f.children.size() == 0) {
         return ts;
     }
+    if (f.agent != "") {
+        set<string> extra = set<string>();
+        set_difference(cur_obs.begin(), cur_obs.end(),
+            sltl.visible_props[f.agent].begin(), sltl.visible_props[f.agent].end(),
+            inserter(extra, extra.end()));
+        if (extra.size() > 0) {
+            ts = expand(ts, extra);
+        }        
+    }
+
     for (Formula sub_f: f.children) {
 
-        set<string> observable;
+        set<string> child_obs;
         set<string> q_out;
         switch (sem) {
             case pobs:
-                observable = sltl.visible_props[sub_f.agent];
+                child_obs = sltl.visible_props[sub_f.agent];
                 q_out = q_in;
                 break;
             case pub:
-                observable = sltl.all_props;
+                child_obs = sltl.all_props;
                 q_out = q_in;
                 break;
             case step:
-                observable = set<string>();
+                child_obs = set<string>();
                 q_out = q_in;
                 break;
             case incr:
-                observable = get_q_incr(q_in, sltl.visible_props[sub_f.agent]);
-                q_out = observable;
+                child_obs = get_q_incr(q_in, sltl.visible_props[sub_f.agent]);
+                q_out = child_obs;
                 break;
             case decr:
-                observable = get_q_decr(q_in, sltl.visible_props[sub_f.agent]);
-                q_out = observable;
+                child_obs = get_q_decr(q_in, sltl.visible_props[sub_f.agent]);
+                q_out = child_obs;
                 break;
         }
 
-        cout<<"working on: "<<sub_f.agent<<"\n";
-        Ts a_ts = apply_i(sltl, sltl.agents[sub_f.agent], sub_f, sem, q_out);
+        //cout<<"working on: "<<sub_f.agent<<"\n";
+        Ts a_ts = apply_i(sltl, sltl.agents[sub_f.agent], sub_f, sem, child_obs, q_out);
 
-        set<string> extra = set<string>();
-        set_difference(observable.begin(), observable.end(),
-            sltl.visible_props[sub_f.agent].begin(), sltl.visible_props[sub_f.agent].end(),
-            inserter(extra, extra.end()));
-        if (extra.size() > 0) {
-            cout<<"expansion\n";
-            a_ts = expand(a_ts, extra);
-        } else {
-            cout<<"expansion skipped\n";
-        }
 
-        cout<<"getting sat...";
+        //cout<<"getting sat...";
         auto sat = get_sat(a_ts, sub_f);
-        cout<<" done\n";
+        //cout<<" done\n";
 
         auto dfa_nodes = map<set<int>, Node>();
-        Node init_node = build_dfa(a_ts, sat, dfa_nodes, observable);
+        Node init_node = build_dfa(a_ts, sat, dfa_nodes, child_obs);
+        cout<<sub_f.agent<<"'s DFA\n";
+        for (auto iter: dfa_nodes) {
+            print_node(iter.second);
+        }
 
-        parallel(ts, &init_node, sub_f.prop_name, observable);
+        
+        //cout<<"parallel w/ "<<sub_f.agent<<"'s DFA\n";
+        parallel(ts, &init_node, sub_f.prop_name, child_obs);
     }
+    print_ts(ts);
     return ts;
 }
 
-Ts apply(
+set<int> apply(
     Sltl& sltl,
     Semantics sem)
 {
+    Ts res;
     if (sem == Semantics::decr) {
-        return apply_i(sltl, sltl.main_ts, sltl.formula, sem, sltl.all_props);
+        res = apply_i(sltl, sltl.main_ts, sltl.formula, sem, set<string>(), sltl.all_props);
     }
-    return apply_i(sltl, sltl.main_ts, sltl.formula, sem, set<string>());
+    res = apply_i(sltl, sltl.main_ts, sltl.formula, sem, set<string>(), set<string>());
+    return get_sat(res, sltl.formula);
 }
 
 //int main()
@@ -130,20 +140,10 @@ Ts apply(
 
 int main()
 {
-    cout<<"start\n";
-    Sltl sltl = parse("resources/test.json");
-    print_sltl(sltl);
-    Ts res = apply(sltl, Semantics::pobs);
-    for (auto i = res.props[0].begin(); i!=res.props[0].end(); i++) {
-        if (*i == "A0") {
-            res.props[0].erase(i);
-            break;
-        }
-    }
-    print_ts(res);
-    cout<<"sat for "<<sltl.formula.formula<<":\n";
-    auto sat = get_sat(res, sltl.formula);
-    print_set(sat);
+    Sltl sltl = parse("resources/test_2.json");
+    auto res = apply(sltl, Semantics::step);
+    cout<<"sat for "<<sltl.formula.formula<<":";
+    print_set(res);
     cout<<"\n";
     
 
