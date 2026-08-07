@@ -1,20 +1,27 @@
 #include "structs.h"
+#include "debug.h"
+#include "input.h"
 
 #include <iostream>
 #include <vector>
 #include <random>
 #include <set>
+#include <format>
+#include <algorithm>
+#include <stdlib.h>
 
 using namespace std;
+
+random_device rd;
+mt19937 gen(rd());
+uniform_real_distribution<double> dis(0.0, 1.0);
+uniform_int_distribution<int> dis2(0, 25);
+
 
 Ts generate_ts(
     int s,
     int p)
 {
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<double> dis(0.0, 1.0);
-
     auto transit = vector<vector<bool>>(s, vector<bool>(s));
     auto visited = set<int>();
     for (int i = 0; i<s; i++) {
@@ -35,7 +42,6 @@ Ts generate_ts(
         }
     }
 
-    uniform_int_distribution<int> dis2(0, 25);
     auto all_props = set<string>();
     auto props = vector<set<string>>(s);
     while(all_props.size() < p) {
@@ -61,26 +67,23 @@ Ts generate_ts(
     return {transit, props, set<int>({0})};
 }
 
-Ts trim_ts(
+Ts reduce_ts(
     Ts ts)
 {
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<double> dis(0.0, 1.0);
-
-    auto transit = ts.transit;
-    for (int i = 0; i<transit.size(); i++) {
-        for (int j = 0; j<transit.size(); j++) {
-            if (transit[i][j] && dis(gen) < 0.3) {
-                transit[i][j] = false;
+    int s = ts.transit.size();
+    auto transit = vector<vector<bool>>(s, vector<bool>(s));
+    for (int i = 0; i<s; i++) {
+        for (int j = 0; j<s; j++) {
+            if (ts.transit[i][j] && dis(gen) < 0.7) {
+                transit[i][j] = true;
             }
         }
     }
 
     auto all_props = set<string>();
-    auto props = ts.props;
-    for (int i = 0; i<props.size(); i++) {
-        for (auto p: props[i]) {
+    auto props = vector<set<string>>(s);
+    for (int i = 0; i<s; i++) {
+        for (auto p: ts.props[i]) {
             all_props.insert(p);
         }
     }
@@ -89,17 +92,48 @@ Ts trim_ts(
             iter = all_props.erase(iter);
         }
     }
-    for (int i = 0; i<props.size(); i++) {
-        if (props[i].size() == 0)
-            continue;
-        for (auto iter = props[i].begin(); iter != props[i].end(); iter++) {
-            if (!all_props.contains(*iter)) {
-                iter = props[i].erase(iter);
+    for (int i = 0; i<s; i++) {
+        for (auto p: ts.props[i]) {
+            if (all_props.contains(p)) {
+                props[i].insert(p);
             }
         }
     }
 
     return {transit, props, set<int>({0})};
+}
+
+string generate_formula(
+    string agent,
+    Ts ts,
+    vector<int> path)
+{
+    string res = "";
+    for(int i = 0; i<path.size(); i++){
+        if (ts.props[path[i]].size() == 0) {
+            continue;
+        }
+        //cout<<ts.props[path[i]].size()<<" ";
+        auto iter = ts.props[path[i]].begin();
+        int n = rand()%ts.props[path[i]].size();
+        for (int j = 0; j<n; j++) {
+            iter++;
+        }
+        string prop = *iter;
+
+        string sub_res = format("\"{}\"", prop);
+        for (int j = 0; j<i; j++) {
+            sub_res = format("(X {})", sub_res);
+        }
+        if (i != 0) {
+            res += " & ";
+        }
+        res += sub_res;
+    }
+    if (agent != "") {
+        res = format("<<{}:{}>>", agent, res);
+    }
+    return res;
 }
 
 set<string> get_props(
@@ -114,14 +148,32 @@ set<string> get_props(
     return all_props;
 }
 
+vector<int> find_path(
+    Ts ts)
+{
+    vector<int> path = vector<int>();
+    set<int> visited = set<int>();
+    for (int i = 0; i<ts.transit.size(); i++) {
+        if (visited.contains(i)) {
+            continue;
+        }
+        visited.insert(i);
+        path.push_back(i);
+        for (int j = 0; j<ts.transit.size(); j++) {
+            if (ts.transit[i][j] && !visited.contains(j)) {
+                i = j;
+                break;
+            }
+        }
+    }
+    return path;
+}
+
 Sltl generate_sltl(
     int agents,
     int size,
     int num_props)
 {
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<int> dis2(0, 25);
     auto all_agents = set<string>();
     while(all_agents.size() < agents) {
         all_agents.insert(string(1, 'A' + dis2(gen)));
@@ -133,10 +185,24 @@ Sltl generate_sltl(
     res.all_props = get_props(main_ts);
     res.agents = map<string, Ts>();
 
+    string formula = "";
+    int i = 0;
     for (auto agent: all_agents) {
-        Ts ts = trim_ts(main_ts);
+        Ts ts = reduce_ts(main_ts);
+        formula += i!=0?" & ": "";
+        vector<int> path = find_path(ts);
+        cout<<agent<<": ";
+        for (int i: path) {
+            cout<<i<<" ";
+        }
+        string f = generate_formula(agent, ts, path);
+        cout<<" "<<f;
+        cout<<"\n";
+        formula += f;
         res.agents[agent] = ts;
         res.visible_props[agent] = get_props(ts);
+        i++;
     }
+    res.formula = parse_formula(formula, res.all_props);
     return res;
 }

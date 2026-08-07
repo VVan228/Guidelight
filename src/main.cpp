@@ -105,20 +105,28 @@ Ts apply_i(
 
 Ts apply(
     Sltl& sltl,
-    Ts ts,
-    Formula& f,
     Semantics sem)
 {
     if (sem == Semantics::decr) {
-        return apply_i(sltl, ts, f, sem, sltl.all_props);
+        return apply_i(sltl, sltl.main_ts, sltl.formula, sem, sltl.all_props);
     }
-    return apply_i(sltl, ts, f, sem, set<string>());
+    return apply_i(sltl, sltl.main_ts, sltl.formula, sem, set<string>());
 }
 
 int main()
 {
     Sltl sltl = generate_sltl(3, 10, 10);
-    print_sltl(sltl);
+    Ts res = apply(sltl, Semantics::pobs);
+    print_ts(res);
+    print_formula(sltl.formula);
+    auto sat = get_sat(res, sltl.formula.formula);
+    //print_set(sat);
+    if (sat.contains(0)) {
+        cout<<"success";
+    } else {
+        cout<<"failure";
+    }
+    cout<<"\n";
 }
 
 //int main()
