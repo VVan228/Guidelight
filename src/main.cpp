@@ -48,6 +48,7 @@ Ts apply_i(
     set<string> cur_obs,
     set<string> q_in)
 {
+    print_ts(ts);
     if (f.children.size() == 0) {
         return ts;
     }
@@ -58,6 +59,7 @@ Ts apply_i(
             inserter(extra, extra.end()));
         if (extra.size() > 0) {
             ts = expand(ts, extra);
+            print_ts(ts);
         }        
     }
 
@@ -88,26 +90,20 @@ Ts apply_i(
                 break;
         }
 
-        //cout<<"working on: "<<sub_f.agent<<"\n";
         Ts a_ts = apply_i(sltl, sltl.agents[sub_f.agent], sub_f, sem, child_obs, q_out);
 
-
-        //cout<<"getting sat...";
         auto sat = get_sat(a_ts, sub_f);
-        //cout<<" done\n";
 
         auto dfa_nodes = map<set<int>, Node>();
         Node init_node = build_dfa(a_ts, sat, dfa_nodes, child_obs);
-        cout<<sub_f.agent<<"'s DFA\n";
+        cout<<sub_f.agent<<" DFA\n";
         for (auto iter: dfa_nodes) {
             print_node(iter.second);
         }
-
         
-        //cout<<"parallel w/ "<<sub_f.agent<<"'s DFA\n";
         parallel(ts, &init_node, sub_f.prop_name, child_obs);
+        print_ts(ts);
     }
-    print_ts(ts);
     return ts;
 }
 
