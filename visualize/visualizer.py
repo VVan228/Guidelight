@@ -3,10 +3,13 @@ from pathlib import Path
 import re
 from enum import Enum
 import shutil
+import svg_stack as ss
+from time import sleep
 
 OUTPUT_DIR = 'visualize/res'
 FILENAME = 'dot{}'
 FILETYPE = 'svg'
+COMBINED_FILENAME = 'all_dots'
 
 def lines_iter(foo):
     prevnl = -1
@@ -172,3 +175,13 @@ if Path(OUTPUT_DIR).is_dir():
     shutil.rmtree(OUTPUT_DIR)
 for i in range(len(dots)):
     dots[i].render(FILENAME.format(i), directory=OUTPUT_DIR, format=FILETYPE)
+
+if FILETYPE == 'svg':
+    doc = ss.Document()
+    layout = ss.VBoxLayout()
+    for i in range(len(dots)):
+        layout.addSVG(
+            "{}/{}.{}".format(OUTPUT_DIR, FILENAME.format(i), FILETYPE),
+            alignment=ss.AlignCenter)
+    doc.setLayout(layout)
+    doc.save("{}/{}.{}".format(OUTPUT_DIR, COMBINED_FILENAME, FILETYPE))
