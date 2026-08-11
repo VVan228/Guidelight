@@ -14,6 +14,8 @@
 #include <map>
 #include <algorithm>
 
+bool VERBOSE = false;
+
 set<string> get_q_incr(
     set<string> q_in,
     set<string> visible_props)
@@ -48,7 +50,8 @@ Ts apply_i(
     set<string> cur_obs,
     set<string> q_in)
 {
-    print_ts(ts);
+    if (VERBOSE)
+        print_ts(ts);
     if (f.children.size() == 0) {
         return ts;
     }
@@ -59,7 +62,8 @@ Ts apply_i(
             inserter(extra, extra.end()));
         if (extra.size() > 0) {
             ts = expand(ts, extra);
-            print_ts(ts);
+            if (VERBOSE)
+                print_ts(ts);
         }        
     }
 
@@ -96,13 +100,16 @@ Ts apply_i(
 
         auto dfa_nodes = map<set<int>, Node>();
         Node init_node = build_dfa(a_ts, sat, dfa_nodes, child_obs);
-        cout<<sub_f.agent<<" DFA\n";
-        for (auto iter: dfa_nodes) {
-            print_node(iter.second);
+        if (VERBOSE) {
+            cout<<sub_f.agent<<" DFA\n";
+            for (auto iter: dfa_nodes) {
+                print_node(iter.second);
+            }
         }
         
         parallel(ts, &init_node, sub_f.prop_name, child_obs);
-        print_ts(ts);
+        if (VERBOSE)
+            print_ts(ts);
     }
     return ts;
 }
@@ -134,52 +141,15 @@ set<int> apply(
 //    }
 //}
 
-int main()
+int main(int argc, char* argv[])
 {
+    if (argc > 1 && argv[1][0] == 'V') {
+        VERBOSE = true;
+    }
+
     Sltl sltl = parse("resources/test_2.json");
     auto res = apply(sltl, Semantics::step);
     cout<<"sat for "<<sltl.formula.formula<<":";
     print_set(res);
     cout<<"\n";
-    
-
 }
-
-//int main()
-//{
-//    Sltl sltl = parse("resources/q_test.json");
-//    print_sltl(sltl);
-//    Ts res = apply(sltl, sltl.main_ts, sltl.formula, Semantics::decr);
-//}
-
-//int main() 
-//{
-//    cout<<"IN\n";
-//    Sltl res = parse("resources/example.json");
-//    print_sltl(res);
-//    
-//    Ts ts = res.agents["A"];
-//
-//    cout<<"EXPANDED TS\n";
-//    Ts nts = expand(ts, {"a", "b", "c"});
-//    print_ts(ts);
-//    print_ts(nts);
-//
-//    cout<<"SAT\n";
-//    string f = "E [ X \"p\" ]";
-//    set<int> sat = get_sat(ts, f);
-//    print_set(sat);
-//    cout<<"\n";
-//
-//    cout<<"DFA\n";
-//    auto all_nodes = map<set<int>, Node>();
-//    Node init_node = build_dfa(nts, sat, all_nodes, set<string>({"p", "a", "b"}));
-//    for (auto iter: all_nodes) {
-//        print_node(iter.second);
-//    }
-//
-//    cout<<"PAR\n";
-//    parallel(nts, &init_node, "X", set<string>({"p", "a"}));
-//    print_ts(nts);
-//}
-
