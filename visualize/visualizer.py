@@ -4,7 +4,6 @@ import re
 from enum import Enum
 import shutil
 import svg_stack as ss
-from time import sleep
 
 OUTPUT_DIR = 'visualize/res'
 FILENAME = 'dot{}'
@@ -82,6 +81,7 @@ def init_dfa(s):
     cur_dfa.agent = s[0]
 
 input = sys.stdin.read()
+#print(input)
 for s in lines_iter(input):
     # DFA business
     is_dfa = re.match(r"[A-Z] DFA", s) != None
@@ -127,6 +127,8 @@ for s in lines_iter(input):
     is_ts_props = re.match(r"^\d+:\s([a-zA-Z]+\d*\s)*$", s) != None
     if is_ts_props and m == Mode.TS:
         res = s.split(": ")
+        #while(int(res[0]) > len(cur_ts.properties)):
+        #    cur_ts.properties.append("");
         cur_ts.properties.append(res[1])
 
 if cur_dfa != None:
@@ -175,6 +177,9 @@ if Path(OUTPUT_DIR).is_dir():
     shutil.rmtree(OUTPUT_DIR)
 for i in range(len(dots)):
     dots[i].render(FILENAME.format(i), directory=OUTPUT_DIR, format=FILETYPE)
+
+with open("{}/output.txt".format(OUTPUT_DIR), "w") as text_file:
+    text_file.write(input)
 
 if FILETYPE == 'svg':
     doc = ss.Document()

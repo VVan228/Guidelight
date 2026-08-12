@@ -13,9 +13,32 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <chrono>
 
 bool VERBOSE = false;
 
+
+// TIME
+chrono::steady_clock::time_point get_time()
+{
+    return std::chrono::steady_clock::now();
+}
+
+int time_diff(
+    chrono::steady_clock::time_point begin,
+    chrono::steady_clock::time_point end)
+{
+    return chrono::duration_cast<std::chrono::milliseconds> (end - begin).count();
+}
+
+void print_time(
+    string category,
+    chrono::steady_clock::time_point begin)
+{
+    cout<<"time::"<<category<<"="<<time_diff(begin, get_time())<<"\n";
+}
+
+// GET_OBS
 set<string> get_q_incr(
     set<string> q_in,
     set<string> visible_props)
@@ -42,6 +65,7 @@ set<string> get_q_decr(
     return q_out;
 }
 
+// MAIN
 Ts apply_i(
     Sltl& sltl,
     Ts ts,
@@ -52,19 +76,22 @@ Ts apply_i(
 {
     if (VERBOSE)
         print_ts(ts);
-    if (f.children.size() == 0) {
-        return ts;
-    }
     if (f.agent != "") {
         set<string> extra = set<string>();
+        auto begin = get_time();
         set_difference(cur_obs.begin(), cur_obs.end(),
             sltl.visible_props[f.agent].begin(), sltl.visible_props[f.agent].end(),
             inserter(extra, extra.end()));
         if (extra.size() > 0) {
             ts = expand(ts, extra);
-            if (VERBOSE)
+            if (VERBOSE) {
+                print_time("expand", begin);
                 print_ts(ts);
+            }
         }        
+    }
+    if (f.children.size() == 0) {
+        return ts;
     }
 
     for (Formula sub_f: f.children) {
@@ -96,60 +123,72 @@ Ts apply_i(
 
         Ts a_ts = apply_i(sltl, sltl.agents[sub_f.agent], sub_f, sem, child_obs, q_out);
 
+        auto begin = get_time();
         auto sat = get_sat(a_ts, sub_f);
+        if (VERBOSE)
+            print_time("sat", begin);
 
         auto dfa_nodes = map<set<int>, Node>();
+        auto begin2 = get_time();
         Node init_node = build_dfa(a_ts, sat, dfa_nodes, child_obs);
         if (VERBOSE) {
+            print_time("dfa_constr", begin2);
             cout<<sub_f.agent<<" DFA\n";
             for (auto iter: dfa_nodes) {
                 print_node(iter.second);
             }
         }
         
+        auto begin3 = get_time();
         parallel(ts, &init_node, sub_f.prop_name, child_obs);
-        if (VERBOSE)
+        if (VERBOSE) {
+            print_time("parallel", begin3);
             print_ts(ts);
+        }
     }
     return ts;
 }
 
+// HELP
 set<int> apply(
     Sltl& sltl,
     Semantics sem)
 {
     Ts res;
+    auto begin = get_time();
     if (sem == Semantics::decr) {
         res = apply_i(sltl, sltl.main_ts, sltl.formula, sem, set<string>(), sltl.all_props);
     }
     res = apply_i(sltl, sltl.main_ts, sltl.formula, sem, set<string>(), set<string>());
+    if (VERBOSE) {
+        print_time("full", begin);
+        print_formula(sltl.formula);
+    }
     return get_sat(res, sltl.formula);
 }
-
-//int main()
-//{
-//    for (int i = 0; i<10; i++) {
-//        Sltl sltl = generate_sltl(3, 5, 5);
-//        Ts res = apply(sltl, Semantics::pobs);
-//        auto sat = get_sat(res, sltl.formula.formula);
-//        if (!sat.contains(0)) {
-//            print_sltl(sltl);
-//            print_ts(res);
-//            break;
-//        }
-//        cout<<"one done;\n";
-//    }
-//}
 
 int main(int argc, char* argv[])
 {
     if (argc > 1 && argv[1][0] == 'V') {
         VERBOSE = true;
     }
-
-    Sltl sltl = parse("resources/test_2.json");
-    auto res = apply(sltl, Semantics::step);
-    cout<<"sat for "<<sltl.formula.formula<<":";
-    print_set(res);
+    Sltl sltl = generate_sltl(2, 3, 4);
+    //print_formula(sltl.formula);
+    auto sat = apply(sltl, Semantics::pub);
+    cout<<"sat: ";
+    print_set(sat);
     cout<<"\n";
 }
+
+//int main(int argc, char* argv[])
+//{
+//    if (argc > 1 && argv[1][0] == 'V') {
+//        VERBOSE = true;
+//    }
+//
+//    Sltl sltl = parse("resources/test_2.json");
+//    auto res = apply(sltl, Semantics::step);
+//    cout<<"sat for "<<sltl.formula.formula<<":";
+//    print_set(res);
+//    cout<<"\n";
+//}

@@ -80,16 +80,17 @@ Ts reduce_ts(
         }
     }
 
+    auto all_props_temp = set<string>();
     auto all_props = set<string>();
     auto props = vector<set<string>>(s);
     for (int i = 0; i<s; i++) {
         for (auto p: ts.props[i]) {
-            all_props.insert(p);
+            all_props_temp.insert(p);
         }
     }
-    for (auto iter = all_props.begin(); iter != all_props.end(); iter++) {
+    for (auto p: all_props_temp) {
         if (dis(gen) < 0.5) {
-            iter = all_props.erase(iter);
+            all_props.insert(p);
         }
     }
     for (int i = 0; i<s; i++) {
@@ -103,7 +104,7 @@ Ts reduce_ts(
     return {transit, props, set<int>({0})};
 }
 
-string generate_formula(
+string generate_formula_for_path(
     string agent,
     Ts ts,
     vector<int> path)
@@ -138,9 +139,9 @@ string generate_formula(
         }
         res += sub_res;
     }
-    if (agent != "") {
-        res = format("<<{}:{}>>", agent, res);
-    }
+    //if (agent != "") {
+    //    res = format("<<{}:{}>>", agent, res);
+    //}
     return res;
 }
 
@@ -202,20 +203,18 @@ Sltl generate_sltl(
     int i = 0;
     for (auto agent: all_agents) {
         Ts ts = reduce_ts(main_ts);
-        formula += i!=0?" & ": "";
         vector<int> path = find_path(ts);
-        cout<<agent<<": ";
-        for (int i: path) {
-            cout<<i<<" ";
+        if (formula == "") {
+            formula = generate_formula_for_path(agent, ts, path);
+            formula = format("<<{}:{}>>", agent, formula);
+        } else {
+            formula = format("<<{}: F ({}) >>", agent, formula);
         }
-        string f = generate_formula(agent, ts, path);
-        cout<<" "<<f;
-        cout<<"\n";
-        formula += f;
         res.agents[agent] = ts;
         res.visible_props[agent] = get_props(ts);
         i++;
     }
+    //cout<<formula<<"\n";
     res.formula = parse_formula(formula, res.all_props);
     return res;
 }
