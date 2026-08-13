@@ -17,6 +17,41 @@ mt19937 gen(rd());
 uniform_real_distribution<double> dis(0.0, 1.0);
 uniform_int_distribution<int> dis2(0, 25);
 
+void gen_strs_r(
+    int pos,
+    int len,
+    int size,
+    char templ_char,
+    string cur_res,
+    set<string>& res)
+{
+    if (res.size() >= size) {
+        return;
+    }
+    if (pos == len) {
+        res.insert(cur_res);
+        return;
+    }
+    int next_pos = pos+1;
+    for (int i = 0; i<26; i++) {
+        gen_strs_r(next_pos, len, size, templ_char, cur_res+string(1, templ_char + i), res);
+    }
+}
+
+set<string> gen_strs(
+    int amount,
+    char temp_char)
+{
+    auto all_agents = set<string>();
+    int agent_encode_len = 1;
+    int agent_encode_num = 26;
+    while (agent_encode_num < amount) {
+        agent_encode_len++;
+        agent_encode_num *= 26;
+    }
+    gen_strs_r(0, agent_encode_len, amount, temp_char, "", all_agents);
+    return all_agents;
+}
 
 Ts generate_ts(
     int s,
@@ -42,11 +77,8 @@ Ts generate_ts(
         }
     }
 
-    auto all_props = set<string>();
+    auto all_props = gen_strs(p, 'a');
     auto props = vector<set<string>>(s);
-    while(all_props.size() < p) {
-        all_props.insert(string(1, 'a' + dis2(gen)));
-    }
     for (int i = 0; i<s; i++) {
         bool skip = true;
         for (int j = 0; j<s; j++) {
@@ -183,15 +215,13 @@ vector<int> find_path(
     return path;
 }
 
+
 Sltl generate_sltl(
     int agents,
     int size,
     int num_props)
 {
-    auto all_agents = set<string>();
-    while(all_agents.size() < agents) {
-        all_agents.insert(string(1, 'A' + dis2(gen)));
-    }
+    auto all_agents = gen_strs(agents, 'A');
 
     Sltl res = {};
     Ts main_ts = generate_ts(size, num_props);

@@ -172,9 +172,27 @@ int main(int argc, char* argv[])
     if (argc > 1 && argv[1][0] == 'V') {
         VERBOSE = true;
     }
-    Sltl sltl = generate_sltl(2, 3, 4);
-    //print_formula(sltl.formula);
-    auto sat = apply(sltl, Semantics::pub);
+    int num_agents, num_states, num_props;
+    Semantics sem;
+    if (argc > 5) {
+        num_agents = atoi(argv[2]);
+        num_states = atoi(argv[3]);
+        num_props = atoi(argv[4]);
+        string sem_s = string(argv[5]);
+        if (sem_s == "pub") {
+            sem = Semantics::pub;
+        } else if (sem_s == "pobs") {
+            sem = Semantics::pobs;
+        } else if (sem_s == "step") {
+            sem = Semantics::step;
+        } else if (sem_s == "incr") {
+            sem = Semantics::incr;
+        } else if (sem_s == "decr") {
+            sem = Semantics::decr;
+        }
+    }
+    Sltl sltl = generate_sltl(num_agents, num_states, num_props);
+    auto sat = apply(sltl, sem);
     cout<<"sat: ";
     print_set(sat);
     cout<<"\n";
