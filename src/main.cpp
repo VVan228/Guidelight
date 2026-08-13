@@ -172,9 +172,9 @@ int main(int argc, char* argv[])
     if (argc > 1 && argv[1][0] == 'V') {
         VERBOSE = true;
     }
-    int num_agents, num_states, num_props;
-    Semantics sem;
     if (argc > 5) {
+        int num_agents, num_states, num_props;
+        Semantics sem;
         num_agents = atoi(argv[2]);
         num_states = atoi(argv[3]);
         num_props = atoi(argv[4]);
@@ -190,12 +190,12 @@ int main(int argc, char* argv[])
         } else if (sem_s == "decr") {
             sem = Semantics::decr;
         }
+        Sltl sltl = generate_sltl(num_agents, num_states, num_props);
+        auto sat = apply(sltl, sem);
+        cout<<"sat: ";
+        print_set(sat);
+        cout<<"\n";
     }
-    Sltl sltl = generate_sltl(num_agents, num_states, num_props);
-    auto sat = apply(sltl, sem);
-    cout<<"sat: ";
-    print_set(sat);
-    cout<<"\n";
 }
 
 //int main(int argc, char* argv[])
