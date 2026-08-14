@@ -167,46 +167,48 @@ set<int> apply(
     return get_sat(res, sltl.formula);
 }
 
+Semantics parse_sem(
+    string sem_s)
+{
+    Semantics sem;
+    if (sem_s == "pub") {
+        sem = Semantics::pub;
+    } else if (sem_s == "pobs") {
+        sem = Semantics::pobs;
+    } else if (sem_s == "step") {
+        sem = Semantics::step;
+    } else if (sem_s == "incr") {
+        sem = Semantics::incr;
+    } else if (sem_s == "decr") {
+        sem = Semantics::decr;
+    }
+    return sem;
+}
+
 int main(int argc, char* argv[])
 {
     if (argc > 1 && argv[1][0] == 'V') {
         VERBOSE = true;
     }
-    if (argc > 5) {
+    if (argc > 6 && argv[2][0] == 'R') {
         int num_agents, num_states, num_props;
-        Semantics sem;
-        num_agents = atoi(argv[2]);
-        num_states = atoi(argv[3]);
-        num_props = atoi(argv[4]);
-        string sem_s = string(argv[5]);
-        if (sem_s == "pub") {
-            sem = Semantics::pub;
-        } else if (sem_s == "pobs") {
-            sem = Semantics::pobs;
-        } else if (sem_s == "step") {
-            sem = Semantics::step;
-        } else if (sem_s == "incr") {
-            sem = Semantics::incr;
-        } else if (sem_s == "decr") {
-            sem = Semantics::decr;
-        }
+        num_agents = atoi(argv[3]);
+        num_states = atoi(argv[4]);
+        num_props = atoi(argv[5]);
+        Semantics sem = parse_sem(string(argv[6]));
         Sltl sltl = generate_sltl(num_agents, num_states, num_props);
         auto sat = apply(sltl, sem);
         cout<<"sat: ";
         print_set(sat);
         cout<<"\n";
     }
+    if (argc > 3 && argv[2][0] != 'R') {
+        //"resources/test_2.json"
+        Sltl sltl = parse(string(argv[2]));
+        Semantics sem = parse_sem(string(argv[3]));
+        auto res = apply(sltl, sem);
+        cout<<"sat for "<<sltl.formula.formula<<":";
+        print_set(res);
+        cout<<"\n";
+    }
 }
-
-//int main(int argc, char* argv[])
-//{
-//    if (argc > 1 && argv[1][0] == 'V') {
-//        VERBOSE = true;
-//    }
-//
-//    Sltl sltl = parse("resources/test_2.json");
-//    auto res = apply(sltl, Semantics::step);
-//    cout<<"sat for "<<sltl.formula.formula<<":";
-//    print_set(res);
-//    cout<<"\n";
-//}
