@@ -5,4 +5,5 @@ using namespace std;
 
 set<int> get_sat(
     Ts& ts,
-    Formula& f);
+    Formula& f,
+    PrismMode m);

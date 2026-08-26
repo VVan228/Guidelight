@@ -9,6 +9,7 @@ using namespace std;
 #define STRUCTS_H_
 
 enum Semantics { pobs, pub, step, incr, decr };
+enum PrismMode { always, exists };
 
 struct Node {
     set<int> states;

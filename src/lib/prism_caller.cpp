@@ -98,7 +98,8 @@ string export_ts(
 
 string export_formula(
     Ts& ts,
-    Formula& f)
+    Formula& f,
+    PrismMode m)
 {
     set<string> all_p_incl_subfs = set<string>();
     string res = "";
@@ -123,16 +124,23 @@ string export_formula(
         }
         res += format("label \"{}\" = false;\n", child.prop_name);
     }
-    res += format("filter(printall, E [ {} ]);", f.formula);
+    string mode = "";
+    if (m == PrismMode::always) {
+        mode = "A";
+    } else if (m == PrismMode::exists) {
+        mode = "E";
+    }
+    res += format("filter(printall, {} [ {} ]);", mode, f.formula);
     return write_to_file("formula", res);
 }
 
 set<int> get_sat(
     Ts& ts,
-    Formula& f)
+    Formula& f,
+    PrismMode m)
 {
     string tsfile = export_ts(ts);
-    string formulafile = export_formula(ts, f);
+    string formulafile = export_formula(ts, f, m);
 
     string res = exec(format("{} {} {}", PRISM, tsfile, formulafile).c_str());
     set<int> sat = get_results(res);

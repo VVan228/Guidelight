@@ -124,7 +124,7 @@ Ts apply_i(
         Ts a_ts = apply_i(sltl, sltl.agents[sub_f.agent], sub_f, sem, child_obs, q_out);
 
         auto begin = get_time();
-        auto sat = get_sat(a_ts, sub_f);
+        auto sat = get_sat(a_ts, sub_f, PrismMode::exists);
         if (VERBOSE)
             print_time("sat", begin);
 
@@ -164,7 +164,7 @@ set<int> apply(
         print_time("full", begin);
         print_formula(sltl.formula);
     }
-    return get_sat(res, sltl.formula);
+    return get_sat(res, sltl.formula, PrismMode::always);
 }
 
 Semantics parse_sem(
