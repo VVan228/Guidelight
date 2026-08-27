@@ -8,9 +8,9 @@ agent_start=5
 agent_step=5
 agent_end=50
 
-props_start=5
+props_start=109
 props_step=1
-props_end=10
+props_end=110
 
 states_start=7
 states_step=7
@@ -22,7 +22,7 @@ if [ $1 == "agents" ]; then
     rm -rf $folder 2> /dev/null
     mkdir -p "$folder";
     for i in $(seq $agent_start $agent_step $agent_end); do
-        file="${i}_${default_states}_${default_props}_pub"
+        file="${i}_${default_states}_${default_props}_${2}"
         ./guidelight V R $i $default_states $default_props $2 | grep time:: \
             > ${folder}/${file}
     done
@@ -33,7 +33,7 @@ if [ $1 == "props" ]; then
     rm -rf $folder 2> /dev/null
     mkdir -p "$folder";
     for i in $(seq $props_start $props_step $props_end); do
-        file="${default_agents}_${default_states}_${i}_pub"
+        file="${default_agents}_${default_states}_${i}_${2}"
         ./guidelight V R $default_agents $default_states $i $2 | grep time:: \
             > ${folder}/${file}
     done
@@ -44,7 +44,7 @@ if [ $1 == "states" ]; then
     rm -rf $folder 2> /dev/null
     mkdir -p "$folder";
     for i in $(seq $states_start $states_step $states_end); do
-        file="${default_agents}_${i}_${default_props}_pub"
+        file="${default_agents}_${i}_${default_props}_${2}"
         ./guidelight V R $default_agents $i $default_props $2 | grep time:: \
             > ${folder}/${file}
     done
