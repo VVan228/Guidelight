@@ -1,4 +1,4 @@
 #!/bin/bash
 cmake . 
 make 
-./guidelight V $1 $2
+./guidelight -F $1 $2

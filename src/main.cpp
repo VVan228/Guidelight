@@ -14,6 +14,7 @@
 #include <map>
 #include <algorithm>
 #include <chrono>
+#include <cassert>
 
 bool VERBOSE = false;
 
@@ -51,7 +52,6 @@ set<string> get_q_incr(
     );
     return q_out;
 }
-
 set<string> get_q_decr(
     set<string> q_in,
     set<string> visible_props)
@@ -149,7 +149,7 @@ Ts apply_i(
     return ts;
 }
 
-// HELP
+// HELPER
 set<int> apply(
     Sltl& sltl,
     Semantics sem)
@@ -187,28 +187,42 @@ Semantics parse_sem(
 
 int main(int argc, char* argv[])
 {
-    if (argc > 1 && argv[1][0] == 'V') {
-        VERBOSE = true;
-    }
-    if (argc > 6 && argv[2][0] == 'R') {
-        int num_agents, num_states, num_props;
-        num_agents = atoi(argv[3]);
-        num_states = atoi(argv[4]);
-        num_props = atoi(argv[5]);
-        Semantics sem = parse_sem(string(argv[6]));
-        Sltl sltl = generate_sltl(num_agents, num_states, num_props);
-        auto sat = apply(sltl, sem);
-        cout<<"sat: ";
-        print_set(sat);
-        cout<<"\n";
-    }
-    if (argc > 3 && argv[2][0] != 'R') {
-        //"resources/test_2.json"
-        Sltl sltl = parse(string(argv[2]));
-        Semantics sem = parse_sem(string(argv[3]));
-        auto res = apply(sltl, sem);
-        cout<<"sat for "<<sltl.formula.formula<<":";
-        print_set(res);
-        cout<<"\n";
+    for (int i = 1; i<argc; i++) {
+        auto a = string(argv[i]);
+        if (a == "-V") {
+            VERBOSE = true;
+            continue;
+        }
+        if (a == "-R") {
+            assert(argc-i >= 4);
+
+            int num_agents, num_states, num_props;
+            num_agents = atoi(argv[i+1]);
+            num_states = atoi(argv[i+2]);
+            num_props = atoi(argv[i+3]);
+            Semantics sem = parse_sem(string(argv[i+4]));
+            Sltl sltl = generate_sltl(num_agents, num_states, num_props);
+            auto sat = apply(sltl, sem);
+            cout<<"sat: ";
+            print_set(sat);
+            cout<<"\n";
+
+            i += 5;
+            continue;
+        }
+        if (a == "-F") {
+            assert(argc-i >= 2);
+
+            //"resources/test_2.json"
+            Sltl sltl = parse(string(argv[i+1]));
+            Semantics sem = parse_sem(string(argv[i+2]));
+            auto res = apply(sltl, sem);
+            cout<<"sat for "<<sltl.formula.formula<<":";
+            print_set(res);
+            cout<<"\n";
+
+            i += 3;
+            continue;
+        }
     }
 }

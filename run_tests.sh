@@ -16,14 +16,15 @@ states_start=7
 states_step=7
 states_end=35
 
-cmake . && make 
+cmake .
+make
 if [ $1 == "agents" ]; then
     folder=".results/agent_change"
     rm -rf $folder 2> /dev/null
     mkdir -p "$folder";
     for i in $(seq $agent_start $agent_step $agent_end); do
         file="${i}_${default_states}_${default_props}_${2}"
-        ./guidelight V R $i $default_states $default_props $2 | grep time:: \
+        ./guidelight -V -R $i $default_states $default_props $2 | grep time:: \
             > ${folder}/${file}
     done
 fi
@@ -34,7 +35,7 @@ if [ $1 == "props" ]; then
     mkdir -p "$folder";
     for i in $(seq $props_start $props_step $props_end); do
         file="${default_agents}_${default_states}_${i}_${2}"
-        ./guidelight V R $default_agents $default_states $i $2 | grep time:: \
+        ./guidelight -V -R $default_agents $default_states $i $2 | grep time:: \
             > ${folder}/${file}
     done
 fi
@@ -45,7 +46,7 @@ if [ $1 == "states" ]; then
     mkdir -p "$folder";
     for i in $(seq $states_start $states_step $states_end); do
         file="${default_agents}_${i}_${default_props}_${2}"
-        ./guidelight V R $default_agents $i $default_props $2 | grep time:: \
+        ./guidelight -V -R $default_agents $i $default_props $2 | grep time:: \
             > ${folder}/${file}
     done
 fi
